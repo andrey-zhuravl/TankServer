@@ -2,84 +2,66 @@ package nn.radio.server.connection;
 
 import nn.radio.dto.KeyEventDto;
 import nn.radio.dto.MouseEventDto;
-import nn.radio.dto.TankDto;
 import nn.radio.server.KeyEventListener;
 import nn.radio.server.MouseClickedListener;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Map;
 
 public class EventClientConnection extends Thread {
-    private static final int KEY_EVENT_IN_PORT = 4447;
-    Socket clientSocket;
-    ServerSocket serverSocket;
-    Socket socket;
-    ObjectOutputStream objectOutputStreamSender;
     ObjectInputStream reciever;
     private boolean isAlive = true;
+    Socket eventSocket;
     private KeyEventListener keyEventListener;
     private MouseClickedListener mouseClickedListener;
-    private boolean isConnected = false;
 
-    public EventClientConnection (){
+    public EventClientConnection (Socket eventSocket, ObjectInputStream reciever,
+                                  KeyEventListener keyEventListener,
+                                  MouseClickedListener mouseClickedListener) {
         System.out.println("EventClientConnection");
+        this.eventSocket = eventSocket;
+        this.reciever = reciever;
+        this.keyEventListener = keyEventListener;
+        this.mouseClickedListener = mouseClickedListener;
     }
 
-    private void startServerSocket () {
-        while (!isConnected) {
+    @Override
+    public void run () {
+        listening();
+    }
+
+    private void listening () {
+        try {
+            eventListeninCycle();
+        } catch (Exception ioException) {
+            System.out.println("EventClientConnection listening error");
+        } finally {
             try {
-                serverSocket = new ServerSocket(KEY_EVENT_IN_PORT);
-            } catch (Exception e) {
-                System.out.println("EventClientConnection ServerSocket error");
+                eventSocket.close();
+            } catch (IOException e) {
+                System.out.println("EventClientConnection eventSocket close error1");
             }
 
             try {
-                socket = serverSocket.accept();
-            } catch (Exception e) {
-                System.out.println("EventClientConnection accept error");
+                reciever.close();
+            } catch (IOException e) {
+                System.out.println("EventClientConnection reciever close error");
             }
 
             try {
-                reciever = new ObjectInputStream(socket.getInputStream());
-                isConnected = true;
-            } catch (Exception e) {
-                System.out.println("EventClientConnection ObjectInputStream error");
-            }
-
-            try {
-                sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                eventSocket.close();
+            } catch (IOException e) {
+                System.out.println("EventClientConnection eventSocket close error2");
             }
         }
     }
 
-    public void setKeyEventListener(KeyEventListener listener){
-        this.keyEventListener = listener;
-    }
-
-    public void setMouseClickedListener(MouseClickedListener listener){
-        this.mouseClickedListener = listener;
-    }
-
-    @Override
-    public void run(){
-        System.out.println("EventClientConnection run");
-        startServerSocket();
-        System.out.println("EventClientConnection startClientSocket");
-
-        eventListenerCycle();
-    }
-
-    private void eventListenerCycle () {
-        while (isAlive){
+    private void eventListeninCycle () throws Exception {
+        while (isAlive) {
             try {
                 Object event = reciever.readObject();
-                if(event instanceof KeyEventDto) {
+                if (event instanceof KeyEventDto) {
                     KeyEventDto e = (KeyEventDto) event;
                     switch (e.paramString) {
                         case "KEY_PRESSED":
@@ -91,13 +73,14 @@ public class EventClientConnection extends Thread {
                         default:
                             break;
                     }
-                } else if (event instanceof MouseEventDto){
+                } else if (event instanceof MouseEventDto) {
                     MouseEventDto e = (MouseEventDto) event;
-                    System.out.println("EventClientConnection MouseEventDto, X = " + e.x + ", Y=" + e.y);
                     mouseClicked(e);
                 }
             } catch (Exception ioException) {
                 ioException.printStackTrace();
+                isAlive = false;
+                throw ioException;
             }
         }
     }

@@ -3,33 +3,30 @@ package nn.radio;
 import nn.radio.dto.TankDto;
 import nn.radio.dto.UserDto;
 import nn.radio.server.ServerThread;
-import nn.radio.server.connection.EventClientConnection;
-import nn.radio.server.connection.TankClientConnection;
+import nn.radio.server.connection.ClientListenerThread;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
 public class TankiApplication {
     public static void main(String[] args) {
 
-        List<TankClientConnection> tankClientConnectionList = new ArrayList<>();
-        List<EventClientConnection> eventClientConnectionList = new ArrayList<>();
         Map<String, TankDto> tankMap = new HashMap<>();
         Map<String, UserDto> userMap = new HashMap<>();
         tankMap.put("U1", createTank( "U1","Andy","1T",200F, 100F));
-        //tankMap.put("U2", createTank( "U2","Kirry","2T",200F, 200F));
+        tankMap.put("U2", createTank( "U2","Kirry","2T",200F, 200F));
+        tankMap.put("U3", createTank( "U3","Kirry","3T",200F, 300F));
 
-        tankClientConnectionList.add(new TankClientConnection());
-        eventClientConnectionList.add(new EventClientConnection());
+
 
         ServerThread tankThread = new ServerThread();
-        tankThread.updateTankMap(tankMap);
-        tankThread.updateClientList(tankClientConnectionList);
-        tankThread.updateEventClientList(eventClientConnectionList);
+        ClientListenerThread clientListenerThread = new ClientListenerThread(tankThread, tankThread);
 
+        tankThread.updateTankMap(tankMap);
+        tankThread.updateFullClientList(clientListenerThread.fullClientConnectionList);
+
+        clientListenerThread.start();
         tankThread.start();
         System.out.println("TankiApplication ServerThread start");
     }

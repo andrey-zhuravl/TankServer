@@ -4,8 +4,7 @@ import nn.radio.dto.KeyEventDto;
 import nn.radio.dto.MouseEventDto;
 import nn.radio.dto.TankDto;
 import nn.radio.mapper.TankMapper;
-import nn.radio.server.connection.EventClientConnection;
-import nn.radio.server.connection.TankClientConnection;
+import nn.radio.server.connection.FullClientConnection;
 import nn.radio.server.model.ServerTank;
 
 import java.util.List;
@@ -20,8 +19,7 @@ public class ServerThread extends Thread implements KeyEventListener,
     private boolean alive = true;
     public Map<String, ServerTank> tankMap = new ConcurrentHashMap<>();
 
-    List<TankClientConnection> tankClientConnectionList;
-    List<EventClientConnection> eventClientConnectionList;
+    List<FullClientConnection> fullClientConnectionList;
 
     public ServerThread () {
     }
@@ -33,9 +31,8 @@ public class ServerThread extends Thread implements KeyEventListener,
         });
     }
 
-    public void updateClientList (List<TankClientConnection> tankClientConnectionList) {
-        this.tankClientConnectionList = tankClientConnectionList;
-        this.tankClientConnectionList.forEach(cc -> cc.start());
+    public void updateFullClientList (List<FullClientConnection> fullClientConnection) {
+        this.fullClientConnectionList = fullClientConnection;
     }
 
     @Override
@@ -51,12 +48,13 @@ public class ServerThread extends Thread implements KeyEventListener,
                             k1 -> TankMapper.fromServerTank(k1)
                             )
                     );
-            tankClientConnectionList.stream().forEach(sc ->
-                    sc.updateTankMapWithDto(map));
+            fullClientConnectionList.stream()
+                    .filter(sc -> sc.tankClientConnection.isAlive)
+                    .forEach(sc ->
+                    sc.tankClientConnection.updateTankMapWithDto(map));
             try {
                 Thread.sleep(20);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
             }
         }
     }
@@ -79,17 +77,15 @@ public class ServerThread extends Thread implements KeyEventListener,
     @Override
     public void keyPressed (KeyEventDto e) {
         tankMap.values().stream().filter(t -> t.isFocusable())
-                .findFirst()
-                .get()
-                .keyEventPressed(e);
+                .limit(1)
+                .forEach(t -> t.keyEventPressed(e));
     }
 
     @Override
     public void keyReleased (KeyEventDto e) {
         tankMap.values().stream().filter(t -> t.isFocusable())
-                .findFirst()
-                .get()
-                .keyEventReleased(e);
+                .limit(1)
+                .forEach(t -> t.keyEventReleased(e));
     }
 
     @Override
@@ -101,10 +97,4 @@ public class ServerThread extends Thread implements KeyEventListener,
         this.alive = alive;
     }
 
-    public void updateEventClientList (List<EventClientConnection> eventClientConnectionList) {
-        this.eventClientConnectionList = eventClientConnectionList;
-        this.eventClientConnectionList.forEach(cc -> cc.setKeyEventListener(this));
-        this.eventClientConnectionList.forEach(cc -> cc.setMouseClickedListener(this));
-        this.eventClientConnectionList.forEach(cc -> cc.start());
-    }
 }

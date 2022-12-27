@@ -13,45 +13,14 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Map;
 
-public class TankClientConnection extends Thread {
-    private static final int TANK_OUT_PORT = 4446;
-    Socket clientSocket;
-    ServerSocket serverSocket;
-    Socket socket;
+public class TankClientConnection {
     ObjectOutputStream objectOutputStreamSender;
-    ObjectInputStream reciever;
-    private boolean isAlive = true;
-    private boolean isConnected = false;
+    public boolean isAlive = true;
+    Socket tankSocket;
 
-    public TankClientConnection (){
-        System.out.println("TankClientConnection");
-    }
-
-    private void startClientSocket () {
-        while (!isConnected) {
-            try {
-                System.out.println("TankClientConnection Socket");
-                clientSocket = new Socket("localhost", TANK_OUT_PORT);
-                System.out.println("TankClientConnection Socket 4444");
-            } catch (Exception e) {
-                System.out.println("TankClientConnection Socket error");
-            }
-
-            try {
-                System.out.println("TankClientConnection ObjectOutputStream");
-                objectOutputStreamSender = new ObjectOutputStream(clientSocket.getOutputStream());
-                System.out.println("TankClientConnection ObjectOutputStream OK");
-                isConnected = true;
-            } catch (Exception e) {
-                System.out.println("TankClientConnection objectOutputStreamSender error");
-            }
-
-            try {
-                sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+    public TankClientConnection (Socket tankSocket, ObjectOutputStream objectOutputStreamSender){
+        System.out.println("EventClientConnection");
+        this.objectOutputStreamSender = objectOutputStreamSender;
     }
 
     public void updateTankMapWithDto (Map<String, TankDto> map) {
@@ -59,23 +28,28 @@ public class TankClientConnection extends Thread {
             objectOutputStreamSender.writeObject(map);
         } catch (Exception e) {
             System.out.println("TankClientConnection updateTankMapWithDto error");
+            isAlive = false;
+
+            try {
+                tankSocket.close();
+            } catch (Exception ioException) {
+                ioException.printStackTrace();
+                System.out.println("TankClientConnection close tankSocket error");
+            }
+
+            try {
+                objectOutputStreamSender.close();
+            } catch (Exception ioException) {
+                ioException.printStackTrace();
+                System.out.println("TankClientConnection close objectOutputStreamSender error");
+            }
+
+            try {
+                tankSocket.close();
+            } catch (Exception ioException) {
+                ioException.printStackTrace();
+                System.out.println("TankClientConnection close tankSocket error");
+            }
         }
     }
-
-    @Override
-    public void run(){
-            System.out.println("TankClientConnection run");
-            startClientSocket();
-            System.out.println("TankClientConnection startClientSocket");
-
-
-//        while (isAlive){
-//            try {
-//                Thread.sleep(1000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//        }
-    }
-
 }
