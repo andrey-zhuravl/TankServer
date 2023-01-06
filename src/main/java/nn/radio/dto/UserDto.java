@@ -9,7 +9,7 @@ public class UserDto implements Serializable {
     public List<String> tankIdList;
 
     public UserDto (String userId, String name) {
-        this.id = id;
+        this.id = userId;
         this.name = name;
     }
 }

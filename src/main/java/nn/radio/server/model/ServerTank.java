@@ -9,6 +9,7 @@ import static nn.radio.Constants.*;
 
 public class ServerTank {
     public String id;
+    public String userId;
     public float Y;
     public float X;
     public float alpha = 0.0F;
@@ -146,15 +147,19 @@ public class ServerTank {
     }
 
     public void mouseEventClicked (MouseEventDto e) {
-        if ((e.getPoint().getX() <= X + TANK_HEIGHT)
-                && (e.getPoint().getX() >= X)
-                && (e.getPoint().getY() <= Y + TANK_WIDTH)
-                && (e.getPoint().getY() >= Y)
+        if (isMatch(e)
         ) {
             setFocusable(true);
         } else {
             setFocusable(false);
         }
+    }
+
+    public boolean isMatch (MouseEventDto e) {
+        return (e.getPoint().getX() <= X + TANK_HEIGHT)
+                && (e.getPoint().getX() >= X)
+                && (e.getPoint().getY() <= Y + TANK_WIDTH)
+                && (e.getPoint().getY() >= Y);
     }
 
     public boolean intersect (ServerCharge clientCharge) {

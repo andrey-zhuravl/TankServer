@@ -1,5 +1,6 @@
 package nn.radio.server.connection;
 
+import nn.radio.dto.AuthDto;
 import nn.radio.dto.KeyEventDto;
 import nn.radio.dto.MouseEventDto;
 import nn.radio.server.KeyEventListener;
@@ -7,21 +8,26 @@ import nn.radio.server.MouseClickedListener;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class EventClientConnection extends Thread {
     ObjectInputStream reciever;
+    ObjectOutputStream objectSender;
     private boolean isAlive = true;
     Socket eventSocket;
     private KeyEventListener keyEventListener;
     private MouseClickedListener mouseClickedListener;
 
-    public EventClientConnection (Socket eventSocket, ObjectInputStream reciever,
+    public EventClientConnection (Socket eventSocket,
+                                  ObjectInputStream reciever,
+                                  ObjectOutputStream objectSender,
                                   KeyEventListener keyEventListener,
                                   MouseClickedListener mouseClickedListener) {
         System.out.println("EventClientConnection");
         this.eventSocket = eventSocket;
         this.reciever = reciever;
+        this.objectSender = objectSender;
         this.keyEventListener = keyEventListener;
         this.mouseClickedListener = mouseClickedListener;
     }
@@ -76,6 +82,9 @@ public class EventClientConnection extends Thread {
                 } else if (event instanceof MouseEventDto) {
                     MouseEventDto e = (MouseEventDto) event;
                     mouseClicked(e);
+                } else if (event instanceof AuthDto) {
+                    AuthDto e = (AuthDto) event;
+                    checkAuthanctication(e);
                 }
             } catch (Exception ioException) {
                 ioException.printStackTrace();
@@ -83,6 +92,10 @@ public class EventClientConnection extends Thread {
                 throw ioException;
             }
         }
+    }
+
+    private void checkAuthanctication (AuthDto e) throws IOException {
+        objectSender.writeObject(e);
     }
 
     public void keyPressed (KeyEventDto e) {

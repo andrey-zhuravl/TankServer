@@ -3,7 +3,7 @@ package nn.radio.dto;
 import java.awt.event.KeyEvent;
 import java.io.Serializable;
 
-public class KeyEventDto implements Serializable {
+public class KeyEventDto extends EventDto implements Serializable {
     public int keyCode;
     public String paramString;
     public int getKeyCode () {

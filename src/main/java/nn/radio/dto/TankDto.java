@@ -8,6 +8,7 @@ import java.io.Serializable;
 public class TankDto implements Serializable {
     private static final long serialVersionUID = 6529685098267757690L;
     public String id;
+    public String userId;
     public float Y;
     public float X;
     public float alpha;
@@ -17,6 +18,7 @@ public class TankDto implements Serializable {
 
     public TankDto (String tankId, UserDto user, float x, float y) {
         this.id = tankId;
+        this.userId = user.id;
         this.X = x;
         this.Y = y;
         this.toreDto = new ToreDto();
@@ -25,6 +27,14 @@ public class TankDto implements Serializable {
     }
 
     public TankDto () {
+    }
+
+    public String getId(){
+        return id;
+    }
+
+    public String getUserId(){
+        return userId;
     }
 
 

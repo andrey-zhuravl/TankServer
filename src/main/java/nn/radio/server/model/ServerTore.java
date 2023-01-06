@@ -11,7 +11,7 @@ public class ServerTore {
     public static float TORRE_WIDTH = ServerTank.TANK_WIDTH/3;
     public   float alpha = 0.0F;
     public   float deltaAlpha = 0.0F;
-    public float speedAlpha = 9.2F;
+    public float speedAlpha = 2F;
 
     public void move (float baseX, float baseY) {
         X = baseX;

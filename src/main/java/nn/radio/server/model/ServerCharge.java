@@ -9,16 +9,10 @@ public class ServerCharge {
     public float Y;
     public float X;
     public float alpha = 0.0F;
-    public static float CHARGE_HEIGHT = 100F;
-    public static float CHARGE_WIDTH = 20F;
     public boolean alive = true;
-
-    float deltaAlpha = 0.0F;
-    float speedAlpha = 0.3F;
-
     float deltaX = 0.0F;
     float deltaY = 0.0F;
-    float speed = 5.0F;
+    float speed = 15.2F;
 
     public ServerCharge (float x, float y, float alpha) {
         this.id = UUID.randomUUID().toString();

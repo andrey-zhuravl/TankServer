@@ -10,18 +10,22 @@ import java.util.Map;
 
 
 public class TankiApplication {
+
+    static TankiProperty tankiProperty = new TankiProperty();
     public static void main(String[] args) {
 
+        tankiProperty.readProperies();
         Map<String, TankDto> tankMap = new HashMap<>();
         Map<String, UserDto> userMap = new HashMap<>();
-        tankMap.put("U1", createTank( "U1","Andy","1T",200F, 100F));
-        tankMap.put("U2", createTank( "U2","Kirry","2T",200F, 200F));
-        tankMap.put("U3", createTank( "U3","Kirry","3T",200F, 300F));
+        tankMap.put("1T", createTank( "111-111-111","Andy","1T",200F, 100F));
+        tankMap.put("2T", createTank( "111-111-111","Andy","2T",200F, 200F));
+        tankMap.put("3T", createTank( "111-111-222","Kirry","3T",200F, 300F));
+        tankMap.put("4T", createTank( "111-111-222","Kirry","4T",200F, 400F));
 
 
 
         ServerThread tankThread = new ServerThread();
-        ClientListenerThread clientListenerThread = new ClientListenerThread(tankThread, tankThread);
+        ClientListenerThread clientListenerThread = new ClientListenerThread(tankiProperty, tankThread, tankThread);
 
         tankThread.updateTankMap(tankMap);
         tankThread.updateFullClientList(clientListenerThread.fullClientConnectionList);
