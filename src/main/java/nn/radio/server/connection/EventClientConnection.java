@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Random;
 
 public class EventClientConnection extends Thread {
     ObjectInputStream reciever;
@@ -18,6 +19,7 @@ public class EventClientConnection extends Thread {
     Socket eventSocket;
     private KeyEventListener keyEventListener;
     private MouseClickedListener mouseClickedListener;
+    Random random = new Random(System.currentTimeMillis());
 
     public EventClientConnection (Socket eventSocket,
                                   ObjectInputStream reciever,
@@ -66,22 +68,32 @@ public class EventClientConnection extends Thread {
     private void eventListeninCycle () throws Exception {
         while (isAlive) {
             try {
+//                int s = random.nextInt(200);
+//                sleep(350 - s);
                 Object event = reciever.readObject();
+                long t1 = System.nanoTime();
                 if (event instanceof KeyEventDto) {
                     KeyEventDto e = (KeyEventDto) event;
-                    switch (e.paramString) {
-                        case "KEY_PRESSED":
-                            keyPressed(e);
-                            break;
-                        case "KEY_RELEASED":
-                            keyReleased(e);
-                            break;
-                        default:
-                            break;
-                    }
+                    System.out.println("Time = " + (t1 - e.time));
+
+                        switch (e.paramString) {
+                            case "KEY_PRESSED":
+                                if (t1 - e.time < 30000000) {
+                                    keyPressed(e);
+                                }
+                                break;
+                            case "KEY_RELEASED":
+                                keyReleased(e);
+                                break;
+                            default:
+                                break;
+                        }
+
                 } else if (event instanceof MouseEventDto) {
                     MouseEventDto e = (MouseEventDto) event;
-                    mouseClicked(e);
+                    System.out.println("Time = " + (t1 - e.time));
+                    if (t1 - e.time < 30000000)
+                        mouseClicked(e);
                 } else if (event instanceof AuthDto) {
                     AuthDto e = (AuthDto) event;
                     checkAuthanctication(e);

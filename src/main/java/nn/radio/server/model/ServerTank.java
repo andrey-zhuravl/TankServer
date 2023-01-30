@@ -55,8 +55,8 @@ public class ServerTank {
             Y = SCENA_BORDER + 15;
         }
 
-        X = X + deltaX;
-        Y = Y + deltaY;
+//        X = X + deltaX;
+//        Y = Y + deltaY;
         alpha = alpha + deltaAlpha;
         tore.move((X + TANK_HEIGHT / 2.4F), (Y + TANK_WIDTH / 3));
     }
@@ -89,13 +89,13 @@ public class ServerTank {
                 break;
             }
             case KeyEvent.VK_UP: {
-                deltaX = (float) Math.cos(Math.toRadians(alpha)) * speed;
-                deltaY = (float) Math.sin(Math.toRadians(alpha)) * speed;
+                X = X + (float) Math.cos(Math.toRadians(alpha)) * speed;
+                Y = Y + (float) Math.sin(Math.toRadians(alpha)) * speed;
                 break;
             }
             case KeyEvent.VK_DOWN: {
-                deltaX = -(float) Math.cos(Math.toRadians(alpha)) * speed;
-                deltaY = -(float) Math.sin(Math.toRadians(alpha)) * speed;
+                X = X + -(float) Math.cos(Math.toRadians(alpha)) * speed;
+                Y = Y + -(float) Math.sin(Math.toRadians(alpha)) * speed;
                 break;
             }
             case KeyEvent.VK_Q: {
