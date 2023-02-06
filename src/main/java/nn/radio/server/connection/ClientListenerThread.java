@@ -61,22 +61,14 @@ public class ClientListenerThread extends Thread {
             EventClientConnection eventClientConnection = getEventClientConnection();
             TankClientConnection tankClientConnection = getTankClientConnection();
             fullClientConnectionList.add(new FullClientConnection(
-                    eventClientConnection,
-                    tankClientConnection));
-           eventClientConnection.start();
+                                                                eventClientConnection,
+                                                                tankClientConnection));
+            eventClientConnection.start();
 
             System.out.println("ClientListenerThread startServerSocket create new connection");
         } catch (Exception e) {
             System.out.println("ClientListenerThread startServerSocket error");
         }
-    }
-
-    private TankClientConnection getTankClientConnection () throws IOException {
-        Socket tankSocket = tankServerSocket.accept();
-        ObjectOutputStream objectSender = new ObjectOutputStream(tankSocket.getOutputStream());
-        System.out.println("ClientListenerThread objectSender");
-        var tConn = new TankClientConnection(tankSocket, objectSender);
-        return tConn;
     }
 
     private EventClientConnection getEventClientConnection () throws IOException {
@@ -86,10 +78,20 @@ public class ClientListenerThread extends Thread {
         ObjectInputStream objectReciever = new ObjectInputStream(eventSocket.getInputStream());
         ObjectOutputStream objectSender = new ObjectOutputStream(eventSocket.getOutputStream());
         System.out.println("ClientListenerThread objectReciever");
-        EventClientConnection eventClientConnection = new EventClientConnection(eventSocket, objectReciever,
+        EventClientConnection eventClientConnection = new EventClientConnection(
+                eventSocket,
+                objectReciever,
                 objectSender,
                 keyEventListener,
                 mouseClickedListener);
         return eventClientConnection;
+    }
+
+    private TankClientConnection getTankClientConnection () throws IOException {
+        Socket tankSocket = tankServerSocket.accept();
+        ObjectOutputStream objectSender = new ObjectOutputStream(tankSocket.getOutputStream());
+        System.out.println("ClientListenerThread objectSender");
+        var tConn = new TankClientConnection(tankSocket, objectSender);
+        return tConn;
     }
 }

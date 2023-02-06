@@ -11,8 +11,7 @@ public class FullClientConnection {
         this.property = property;
     }
 
-    public FullClientConnection (EventClientConnection eventClientConnection,
-                                 TankClientConnection tankClientConnection) {
+    public FullClientConnection (EventClientConnection eventClientConnection, TankClientConnection tankClientConnection) {
         this.tankClientConnection = tankClientConnection;
         this.eventClientConnection = eventClientConnection;
 
