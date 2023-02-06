@@ -1,20 +1,23 @@
 package nn.radio;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Properties;
 
 public class TankiProperty {
     Properties properties = new Properties();
     public void readProperies () {
-        try {
-            String configFilePath = "config.properties";
-            FileInputStream propsInput = new FileInputStream(configFilePath);
+        String configFilePath = "config.properties";
+
+        try (FileInputStream propsInput = new FileInputStream(configFilePath)) {
             properties.load(propsInput);
             properties.forEach( (k,v) -> {
                 System.out.println(k + " " + v.toString());
             });
-
-        } catch (Exception e) {
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
