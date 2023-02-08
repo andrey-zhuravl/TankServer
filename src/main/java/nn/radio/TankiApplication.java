@@ -13,16 +13,22 @@ public class TankiApplication {
 
     static TankiProperty tankiProperty = new TankiProperty();
     public static void main(String[] args) {
-
         tankiProperty.readProperies();
         Map<String, TankDto> tankMap = new HashMap<>();
         Map<String, UserDto> userMap = new HashMap<>();
-        tankMap.put("1T", createTank( "111-111-111","Andy","1T",200F, 100F));
-        tankMap.put("2T", createTank( "111-111-111","Andy","2T",200F, 200F));
-        tankMap.put("3T", createTank( "111-111-222","Kirry","3T",200F, 300F));
-        tankMap.put("4T", createTank( "111-111-222","Kirry","4T",200F, 400F));
 
+        ConfigReader configReader = new ConfigReader();
+        int I = configReader.getConfigSize();
 
+        for (int i = 0; i < I; i++) {
+            tankMap.put(configReader.tankValues(i,0),
+                            createTank( configReader.tankValues(i,1),
+                                configReader.tankValues(i,2),
+                                configReader.tankValues(i,3),
+                                Float.parseFloat(configReader.tankValues(i,4).trim()),
+                                Float.parseFloat(configReader.tankValues(i,5).trim())));
+
+        }
 
         ServerThread tankThread = new ServerThread();
         ClientListenerThread clientListenerThread = new ClientListenerThread(tankiProperty, tankThread, tankThread);
